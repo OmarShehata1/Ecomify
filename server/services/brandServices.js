@@ -2,17 +2,29 @@ import Brand from "../models/brandModel.js";
 import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 // @desc    Get all Brands
 // @route   GET /api/v1/brands
 // @access  Public
 
 const getBrands = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 10;
-  const skip = (page - 1) * limit;
-  const brands = await Brand.find({}).skip(skip).limit(limit);
-  res.status(200).json({ result: brands.length, page, data: brands });
+   // Building query
+   const countDocuments = await Brand.countDocuments();
+   const features = new ApiFeatures(
+   Brand.find(),
+   req.query
+ )
+   .filter()
+   .search()
+   .sort()
+   .limitFields()
+   .paginate(countDocuments);
+
+  // Executing query
+  const brands = await features.mongooseQuery;
+
+  res.status(200).json({ result: brands.length, page: features.page, totalPages: features.totalPages , data: brands });
 });
 
 

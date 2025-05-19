@@ -2,23 +2,27 @@ import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
 import subCategory from "../models/subCategoryModel.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 // @desc    Get all SubCategories
 // @route   GET /api/v1/subCategories
 // @access  Public
 const getSubCategories = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-
-  const subCategories = await subCategory
-    .find({})
-    .skip(skip)
-    .limit(limit)
-    .populate({ path: "category", select: "name -_id" });
-  res
-    .status(200)
-    .json({ result: subCategories.length, page, data: subCategories });
+  const countDocuments = await subCategory.countDocuments();
+     const features = new ApiFeatures(
+      subCategory.find(),
+     req.query
+   )
+     .filter()
+     .search()
+     .sort()
+     .limitFields()
+     .paginate(countDocuments);
+  
+    // Executing query
+    const subCategories = await features.mongooseQuery;
+  
+  res.status(200).json({ result: subCategories.length,  page: features.page, totalPages: features.totalPages, data: categories });
 });
 
 // nested Route

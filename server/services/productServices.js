@@ -8,25 +8,25 @@ import ApiFeatures from "../utils/apiFeatures.js";
 // @route   GET /api/v1/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res, next) => {
-  const features = new ApiFeatures(
+    // Building query
+    const countDocuments = await Product.countDocuments();
+    const features = new ApiFeatures(
     Product.find().populate({ path: "category", select: "name -_id" }),
     req.query
   )
     .filter()
-    .search()
+    .search(Product)
     .sort()
     .limitFields()
-    .paginate();
+    .paginate(countDocuments);
 
+  // Executing query
   const products = await features.mongooseQuery;
 
   if (!products || products.length === 0) {
     return next(new ApiError("No products found", 404));
   }
-
-  res
-    .status(200)
-    .json({ result: products.length, page: features.page, data: products });
+  res.status(200).json({ result: products.length, page: features.page, totalPages: features.totalPages , data: products });
 });
 
 // @desc    Get a spesfic Product

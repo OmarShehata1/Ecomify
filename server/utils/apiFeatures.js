@@ -24,12 +24,19 @@ class ApiFeatures {
     return this;
   }
 
-  paginate() {
+  paginate(countDocuments) {
     const page = this.queryString.page * 1 || 1;
     const limit = this.queryString.limit * 1 || 10;
     const skip = (page - 1) * limit;
     this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
     this.page = page;
+    this.limit = limit;
+    this.totalPages = Math.ceil(countDocuments / limit);
+    this.hasNextPage = skip + limit < countDocuments;
+    this.hasPreviousPage = skip > 0;
+    this.nextPage = this.hasNextPage ? page + 1 : null;
+    this.previousPage = this.hasPreviousPage ? page - 1 : null;
+    this.totalDocuments = countDocuments;
     return this;
   }
 
@@ -53,15 +60,21 @@ class ApiFeatures {
     return this;
   }
 
-  search() {
+  search(modelName) {
     if (this.queryString.keyword) {
       const keyword = this.queryString.keyword;
-      this.mongooseQuery = this.mongooseQuery.find({
-        $or: [
-          { title: { $regex: keyword, $options: "i" } },
-          { description: { $regex: keyword, $options: "i" } },
-        ],
-      });
+      if (modelName === "Product") {
+        this.mongooseQuery = this.mongooseQuery.find({
+          $or: [
+            { title: { $regex: keyword, $options: "i" } },
+            { description: { $regex: keyword, $options: "i" } },
+          ],
+        });
+      } else {
+        this.mongooseQuery = this.mongooseQuery.find({
+          name: { $regex: keyword, $options: "i" },
+        });
+      }
     }
     return this;
   }

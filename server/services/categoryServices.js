@@ -2,16 +2,27 @@ import Category from "../models/categoryModel.js";
 import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 // @desc    Get all categories
 // @route   GET /api/v1/categories
 // @access  Public
 const getCategories = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 10;
-  const skip = (page - 1) * limit;
-  const categories = await Category.find({}).skip(skip).limit(limit);
-  res.status(200).json({ result: categories.length, page, data: categories });
+  const countDocuments = await Category.countDocuments();
+     const features = new ApiFeatures(
+      Category.find(),
+     req.query
+   )
+     .filter()
+     .search()
+     .sort()
+     .limitFields()
+     .paginate(countDocuments);
+  
+    // Executing query
+    const categories = await features.mongooseQuery;
+  
+  res.status(200).json({ result: categories.length,  page: features.page, totalPages: features.totalPages, data: categories });
 });
 
 
