@@ -13,7 +13,7 @@ import {
   updateCategory,
   deleteCategory,
 } from "../services/categoryServices.js";
-import { getSubCategoriesByCategory, createSubCategoryOnCategory } from "../services/subCategoryServices.js";
+import { getSubCategoriesByCategory, createSubCategoryOnCategory } from "../services/categoryAndSub.js";
 
 const router = express.Router();
 
@@ -27,6 +27,7 @@ router
   .get(getCategoryValidator, getCategory)
   .put(updateCategoryValidator, updateCategory)
   .delete(deleteCategoryValidator, deleteCategory);
+
 
 // Nested route for subcategories
   router

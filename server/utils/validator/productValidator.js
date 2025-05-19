@@ -1,8 +1,8 @@
-import { check } from "express-validator";
+import { check,body } from "express-validator";
 import validatorMiddleware from "../../middlewares/validator.js";
 import Category from "../../models/categoryModel.js";
 import SubCategory from "../../models/subCategoryModel.js";
-
+import slugify from "slugify";
 const getProductValidator = [
   check("id").isMongoId().withMessage("Invalid product id format"),
   validatorMiddleware,
@@ -16,7 +16,11 @@ const createProductValidator = [
     .withMessage("Product title must be at least 3 characters long")
     .isLength({ max: 80 })
     .withMessage("Product title must be at most 80 characters long"),
-  check("description")
+    body("title").optional().custom((value, { req }) => {
+      req.body.slug = slugify(value);
+      return true;
+    }),
+    check("description")
     .notEmpty()
     .withMessage("Product description is required")
     .isLength({ min: 3 })
@@ -138,6 +142,10 @@ const createProductValidator = [
 
 const updateProductValidator = [
   check("id").isMongoId().withMessage("Invalid product id format"),
+  body("title").optional().custom((value, { req }) => {
+    req.body.slug = slugify(value);
+    return true;
+  }),
   validatorMiddleware,
 ];
 
