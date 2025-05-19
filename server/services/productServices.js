@@ -2,78 +2,31 @@ import Product from "../models/productModel.js";
 import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 // @desc    Get all Products
 // @route   GET /api/v1/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res, next) => {
-  // 1) Filtering
-  const query = { ...req.query };
+  const features = new ApiFeatures(
+    Product.find().populate({ path: "category", select: "name -_id" }),
+    req.query
+  )
+    .filter()
+    .search()
+    .sort()
+    .limitFields()
+    .paginate();
 
-
-  const excludedFields = ["page", "sort", "limit", "fields"];
-  excludedFields.forEach((el) => delete query[el]);
-  console.log(query);
-
-  // Transform to nested MongoDB operators (gte, gt, lte, lt)
-  const filter = {};
-  for (const key in query) {
-    if (key.includes("[")) {
-      const [field, operator] = key.replace("]", "").split("["); // e.g., "price[gte]" -> "price", "gte"
-      if (!filter[field]) filter[field] = {};
-      filter[field][`$${operator}`] = Number(query[key]); // Convert value to number
-    } else {
-      filter[key] = query[key];
-    }
-  }
-  console.log(filter);
-
-  // 2) Pageination
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 10;
-  const skip = (page - 1) * limit;
-
-  // Build query
-  const mongooseQuery = Product.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .populate({ path: "category", select: "name -_id" });
-
-    // 3) Sorting
-    if (req.query.sort) {
-        //
-        const sortBy = req.query.sort.split(",").join(" ");
-        mongooseQuery.sort(sortBy);
-        }else {
-            mongooseQuery.sort("-createdAt");
-        }
-
-    // 4) Field limiting
-    if (req.query.fields) {
-        const fields = req.query.fields.split(",").join(" ");
-        mongooseQuery.select(fields);
-    } else {
-        mongooseQuery.select("-__v");
-    }
-
-    // 5) search 
-    if (req.query.keyword) {
-        const keyword = req.query.keyword;
-        mongooseQuery.find({
-            $or: [
-                { title: { $regex: keyword, $options: "i" } },
-                { description: { $regex: keyword, $options: "i" } },
-            ],
-        });
-    }
-
-  // Execute query
-  const products = await mongooseQuery;
+  const products = await features.mongooseQuery;
 
   if (!products || products.length === 0) {
     return next(new ApiError("No products found", 404));
   }
-  res.status(200).json({ result: products.length, page, data: products });
+
+  res
+    .status(200)
+    .json({ result: products.length, page: features.page, data: products });
 });
 
 // @desc    Get a spesfic Product
