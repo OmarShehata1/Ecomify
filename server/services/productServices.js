@@ -47,6 +47,26 @@ const getProducts = asyncHandler(async (req, res, next) => {
         }else {
             mongooseQuery.sort("-createdAt");
         }
+
+    // 4) Field limiting
+    if (req.query.fields) {
+        const fields = req.query.fields.split(",").join(" ");
+        mongooseQuery.select(fields);
+    } else {
+        mongooseQuery.select("-__v");
+    }
+
+    // 5) search 
+    if (req.query.keyword) {
+        const keyword = req.query.keyword;
+        mongooseQuery.find({
+            $or: [
+                { title: { $regex: keyword, $options: "i" } },
+                { description: { $regex: keyword, $options: "i" } },
+            ],
+        });
+    }
+
   // Execute query
   const products = await mongooseQuery;
 
