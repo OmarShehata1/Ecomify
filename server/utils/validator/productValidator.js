@@ -14,8 +14,8 @@ const createProductValidator = [
     .withMessage("Product title is required")
     .isLength({ min: 3 })
     .withMessage("Product title must be at least 3 characters long")
-    .isLength({ max: 60 })
-    .withMessage("Product title must be at most 30 characters long"),
+    .isLength({ max: 80 })
+    .withMessage("Product title must be at most 80 characters long"),
   check("description")
     .notEmpty()
     .withMessage("Product description is required")
@@ -107,7 +107,7 @@ const createProductValidator = [
   
       const isValid = req.body.subCategories.every((id) =>
         validSubCategoryIds.includes(id)
-      )                  ;
+      );
   
       if (!isValid) {
         return Promise.reject(

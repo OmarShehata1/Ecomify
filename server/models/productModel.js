@@ -7,13 +7,12 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product title is required"],
       trim: true,
       minLength: [3, "Product title must be at least 3 characters"],
-      maxLength: [60, "Product title must be at most 50 characters"],
+      maxLength: [80, "Product title must be at most 80 characters"],
     },
     slug: {
       type: String,
       lowercase: true,
       required: [true, "Product slug is required"],
-      unique: [true, "Product slug must be unique"],
     },
     imageCover: {
       type: String,
@@ -58,11 +57,6 @@ const productSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "SubCategory",
         },
-      ],
-      required: [true, "SubCategory is required"],
-      validate: [
-        (arr) => arr.length > 0,
-        "At least one subcategory is required",
       ],
     },
     brand: {
