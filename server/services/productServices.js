@@ -5,7 +5,7 @@ import { getAll, getOne, createOne, updateOne, deleteOne } from "./handlerFactor
 // @desc    Get all Products
 // @route   GET /api/v1/products
 // @access  Public
-const getProducts = getAll(Product, "Products");
+const getProducts = getAll(Product, "Product");
 
 // @desc    Get a spesfic Product
 // @route   GET /api/v1/products/:id

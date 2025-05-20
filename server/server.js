@@ -6,6 +6,7 @@ import categoryRoutes from "./routes/categoryRoute.js";
 import subCategoryRoutes from "./routes/subCategoryRoute.js";
 import brandRoutes from "./routes/brandRoute.js";
 import productRoutes from "./routes/productRoute.js";
+import userRoutes from "./routes/userRoute.js";
 import globalError from "./middlewares/errorHandler.js";
 import ApiError from "./utils/apiError.js";
 dotenv.config();
@@ -25,6 +26,7 @@ app.use("/api/v1/categories", categoryRoutes);
 app.use("/api/v1/subCategories", subCategoryRoutes);
 app.use("/api/v1/brands", brandRoutes);
 app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/users", userRoutes);
 
 app.use((req, res, next) => {
   next(new ApiError(`Can't find this route `, 400));
