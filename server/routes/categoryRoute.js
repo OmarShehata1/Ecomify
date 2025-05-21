@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   getCategoryValidator,
   createCategoryValidator,
@@ -12,15 +13,18 @@ import {
   getCategory,
   updateCategory,
   deleteCategory,
+  uploadCategoryImage,
 } from "../services/categoryServices.js";
 import { getSubCategoriesByCategory, createSubCategoryOnCategory } from "../services/categoryAndSub.js";
+
+
 
 const router = express.Router();
 
 router
   .route("/")
   .get(getCategories)
-  .post(createCategoryValidator, createCategory);
+  .post(uploadCategoryImage,createCategoryValidator, createCategory);
 
 router
   .route("/:id")

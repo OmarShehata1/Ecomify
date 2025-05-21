@@ -1,5 +1,24 @@
 import Category from "../models/categoryModel.js";
 import { getAll, getOne, createOne, updateOne, deleteOne } from "./handlerFactory.js";
+import multer from "multer";
+import { v4 as uuidv4 } from 'uuid';
+
+
+// Multer configuration for file upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/categories');
+  },
+  // Set the filename
+  filename: function (req, file, cb) {
+    const ext = file.mimetype.split('/')[1];
+    const filename = `category-${uuidv4()}.${ext}`;
+    cb(null, filename);}
+});
+
+const upload = multer({ storage: storage });
+
+const uploadCategoryImage = upload.single('image');
 
 
 // @desc    Get all categories
@@ -31,4 +50,4 @@ const updateCategory = updateOne(Category);
 // @access  Private
 const deleteCategory = deleteOne(Category);
 
-export { getCategories, createCategory, getCategory, updateCategory, deleteCategory };
+export {uploadCategoryImage, getCategories, createCategory, getCategory, updateCategory, deleteCategory };
