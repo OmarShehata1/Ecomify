@@ -14,6 +14,7 @@ import {
   updateCategory,
   deleteCategory,
   uploadCategoryImage,
+  resizeImage,
 } from "../services/categoryServices.js";
 import { getSubCategoriesByCategory, createSubCategoryOnCategory } from "../services/categoryAndSub.js";
 
@@ -24,12 +25,12 @@ const router = express.Router();
 router
   .route("/")
   .get(getCategories)
-  .post(uploadCategoryImage,createCategoryValidator, createCategory);
+  .post( uploadCategoryImage, resizeImage, createCategoryValidator, createCategory);
 
 router
   .route("/:id")
   .get(getCategoryValidator, getCategory)
-  .put(updateCategoryValidator, updateCategory)
+  .put(uploadCategoryImage, resizeImage, updateCategoryValidator, updateCategory)
   .delete(deleteCategoryValidator, deleteCategory);
 
 

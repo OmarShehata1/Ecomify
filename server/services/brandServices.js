@@ -1,5 +1,32 @@
+import sharp from "sharp";
+import { v4 as uuidv4 } from "uuid";
+
+import asyncHandler from "express-async-handler";
 import Brand from "../models/brandModel.js";
 import { getAll, getOne, createOne, updateOne, deleteOne } from "./handlerFactory.js";
+import { uploadSingleImage } from "../middlewares/uploadImageMiddleware.js";
+
+
+// upload image middleware
+const uploadBrandImage = uploadSingleImage("image");
+
+
+// resize image middleware
+const resizeImage = asyncHandler(async (req, res, next) => {
+  if (!req.file) return next();
+
+  req.body.image = `brand-${uuidv4()}.jpeg`;
+
+  await sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 })
+    .toFile(`uploads/brands/${req.body.image}`);
+
+  next();
+}
+);
+
 
 // @desc    Get all Brands
 // @route   GET /api/v1/brands
@@ -31,4 +58,4 @@ const updateBrand = updateOne(Brand);
 const deleteBrand = deleteOne(Brand);
 
 
-export { getBrands, getBrand , createBrand, updateBrand, deleteBrand };
+export { uploadBrandImage, resizeImage ,getBrands, getBrand , createBrand, updateBrand, deleteBrand };

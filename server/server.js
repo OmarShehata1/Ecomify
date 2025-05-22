@@ -1,6 +1,10 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
+
 import connectDB from "./config/db.js";
 import categoryRoutes from "./routes/categoryRoute.js";
 import subCategoryRoutes from "./routes/subCategoryRoute.js";
@@ -9,12 +13,20 @@ import productRoutes from "./routes/productRoute.js";
 import userRoutes from "./routes/userRoute.js";
 import globalError from "./middlewares/errorHandler.js";
 import ApiError from "./utils/apiError.js";
+
 dotenv.config();
 
 const app = express();
 
+
+// ES module workaround for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 // Middleware
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "uploads")));
 
 if (process.env.NODE_ENV === "development") {
   console.log(` mode: ${process.env.NODE_ENV}`);
